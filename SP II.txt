@@ -1,0 +1,630 @@
+package Alinieri;
+
+public interface Aliniere {
+
+    public void printAligned(String text);
+
+}
+public class AliniereCentru implements Aliniere{
+    @Override
+    public void printAligned(String text) {
+        System.out.println("***" + text + "***");
+    }
+}
+public class AliniereDreapta implements Aliniere{
+    @Override
+    public void printAligned(String text) {
+        System.out.println(text + "***");
+    }
+}
+public class AliniereStanga  implements Aliniere{
+
+    @Override
+    public void printAligned(String text) {
+        System.out.println("***" + text);
+    }
+}
+package Elements;
+
+import Useri.Visitor;
+
+public class AbstractElement implements Element{
+
+    @Override
+    public void acceptVisitor(Visitor v) {
+
+    }
+
+    @Override
+    public void add(Element e) throws Exception {
+
+    }
+
+    @Override
+    public void remove(Element e) throws Exception {
+
+    }
+
+    @Override
+    public Element getElement(int index) throws Exception {
+        return null;
+    }
+
+    @Override
+    public void print() {
+
+    }
+}
+import Useri.Visitor;
+
+import java.util.ArrayList;
+
+import Alinieri.AliniereCentru;
+import Alinieri.AliniereDreapta;
+import Alinieri.AliniereStanga;
+
+public class Carte implements Element{
+
+    private String title;
+    // private ArrayList<Author> authors = new ArrayList<Author>();
+    
+    private ArrayList<Element> elements = new ArrayList<>();
+    private AliniereStanga alignLeft;
+    private AliniereCentru alignCenter;
+    private AliniereDreapta alignRight;
+
+    Carte(String titlu){
+    	
+        this.title = titlu;
+    }
+
+    public void acceptVisitor(Visitor v){
+        for(Element e : elements){
+            e.acceptVisitor(v);
+        }
+    }
+
+    public void addElement(Element e){
+        elements.add(e);
+    }
+
+    public void print(){
+        System.out.println("Titlul Cartii: " + title);
+        for(Element element : elements){
+        	
+            element.print();
+          
+        }
+    }
+
+    @Override
+    public void add(Element e) throws Exception {
+
+    }
+
+    @Override
+    public void remove(Element e) throws Exception {
+
+    }
+
+    @Override
+    public Element getElement(int index) throws Exception {
+        return null;
+    }
+}
+import Useri.Visitor;
+
+public interface Element {
+	
+    public void acceptVisitor(Visitor v);
+    public void add(Element e) throws Exception;
+    public void remove(Element e) throws Exception;
+    public Element getElement(int index) throws Exception;
+    public void print();
+
+}
+
+import Useri.Visitor;
+
+public class ImageProxy extends AbstractElement {
+    private String fileName;
+    private Imagine realImage = null;
+
+    ImageProxy(String fileName){
+        this.fileName = fileName;
+    }
+
+    public void acceptVisitor(Visitor v){
+        v.visitImageProxy(this);
+    }
+
+    public void print(){
+        if(realImage == null){
+            realImage = new Imagine(fileName);
+            realImage.print();
+        }
+    }
+}
+import java.awt.image.BufferedImage;
+import java.io.File;
+
+import javax.imageio.ImageIO;
+
+import Useri.Visitor;
+
+public class Imagine extends AbstractElement{
+
+    private String fileName;
+    private BufferedImage image;
+
+    Imagine(String fileName){
+        this.fileName = fileName;
+        //try{
+         //  image = ImageIO.read(new File(fileName));
+       //} catch (Exception e){
+        //    System.out.println(e.getMessage());
+       //}
+    }
+
+    public void acceptVisitor(Visitor v){
+        v.visitImage(this);
+    }
+
+    @Override
+    public void print() {
+    	
+        System.out.println("Fisiere(Imagini): " + fileName);
+    }
+}
+import Useri.DocumentVisitor;
+
+public class Main {
+
+    public static void main(String args[]){
+
+    	
+       
+        Carte carte = new Carte("Fratii Jderi");
+        
+       
+        Sectiune sectiune = new Sectiune("Sectiune : SF");
+        sectiune.add(new Paragraf("Paragraf 1", "Inceputuri"));
+        sectiune.add(new Tabel("Tabel"));
+        sectiune.add(new Paragraf("Paragraf 2", "Pe la mijloc"));
+       
+        sectiune.add(new Paragraf("Paragraf 3", "Alea alea"));
+        Imagine imagine = new Imagine("Imagine1");
+        Imagine image2 = new Imagine("Imagine2");
+        ImageProxy imageProxy = new ImageProxy("ImagProxy");
+        
+        
+        SpecialArt special = new SpecialArt("ACESTA ESTE TEXTUL SPECIAL");
+        carte.addElement(special);
+
+       
+        
+        carte.addElement(sectiune);
+       
+        //carte.addElement();
+        carte.addElement(imagine);
+        carte.addElement(image2);
+        carte.addElement(imageProxy);
+
+
+        DocumentVisitor dsv = new DocumentVisitor();
+        carte.acceptVisitor(dsv);
+        dsv.printStatistics();
+        carte.print();
+    }
+    
+
+}
+import Useri.Visitor;
+
+public class Paragraf implements Element{
+
+    private String title;
+    private String text;
+
+    Paragraf(String title, String text){
+        this.title = title;
+        this.text = text;
+    }
+
+    @Override
+    public void acceptVisitor(Visitor v) {
+        v.visitParagraph(this);
+    }
+
+    @Override
+    public void add(Element e) throws Exception{
+        throw new Exception("This method cannot be used for this Element");
+    }
+
+    @Override
+    public void remove(Element e) throws Exception{
+        throw new Exception("This method cannot be used for this Element");
+    }
+
+    @Override
+    public Element getElement(int e) throws Exception{
+        throw new Exception("This method cannot be used for this Element");
+    }
+
+    @Override
+    public void print() {
+    	
+    	
+    	System.out.println(text);
+    	
+    }
+}
+import java.util.ArrayList;
+
+import Useri.Visitor;
+
+public class Sectiune implements Element {
+
+    private String title;
+    private ArrayList<Element> elements = new ArrayList<>();
+
+    Sectiune(String title){
+        this.title = title;
+    }
+
+    @Override
+    public void acceptVisitor(Visitor v) {
+        v.visitSection(this);
+    }
+
+    @Override
+    public void add(Element e) {
+        this.elements.add(e);
+    }
+
+    @Override
+    public void remove(Element e) {
+        elements.remove(e);
+    }
+
+    @Override
+    public Element getElement(int index) {
+        return elements.get(index);
+    }
+
+    @Override
+    public void print() {
+        System.out.println(title);
+        System.out.println("------------------Paragrafe----------------------");
+        for(Element element : elements){
+            element.print();
+             
+        }
+        System.out.println("----------------Fisiere------------------------");
+        
+    }
+
+    public ArrayList<Element> getElements(){
+        return elements;
+    }
+
+    public void setTitle(String title){
+        this.title = title;
+    }
+}
+import java.util.ArrayList;
+
+import Useri.Visitor;
+
+public class SpecialArt implements Element{
+	
+	private String text;
+
+    SpecialArt(String text){
+        this.text = text;
+    }
+
+    @Override
+    public void acceptVisitor(Visitor v) {
+    	
+        v.visitSpecialArt(this);
+    
+    }
+
+    @Override
+    public void add(Element e) throws Exception{
+    	throw new Exception("This method cannot be used for this Element");
+    }
+
+    @Override
+    public void remove(Element e) throws Exception{
+    	throw new Exception("This method cannot be used for this Element");
+    }
+
+    @Override
+    public Element getElement(int e) throws Exception{
+    	throw new Exception("This method cannot be used for this Element");
+    }
+
+    @Override
+    public void print() {
+    	System.out.println("------------------TextSpecial----------------------");
+        System.out.println("Text Special:"+text);
+        System.out.println("----------------------------------------");
+        
+    }
+
+    public void setTitle(String text){
+        this.text = text;
+    }
+}
+import Useri.Visitor;
+
+public class Tabel implements Element {
+
+    private String title;
+
+    Tabel(String title){
+        this.title = title;
+    }
+
+    @Override
+    public void acceptVisitor(Visitor v) {
+        v.visitTable(this);
+    }
+
+    @Override
+    public void add(Element e) throws Exception{
+        throw new Exception("This method cannot be used for this Element");
+    }
+
+    @Override
+    public void remove(Element e) throws Exception{
+        throw new Exception("This method cannot be used for this Element");
+    }
+
+    @Override
+    public Element getElement(int e) throws Exception{
+        throw new Exception("This method cannot be used for this Element");
+    }
+
+    @Override
+    public void print() {
+        // TODO: PRINT OUT THE TABEL
+    }
+}
+package GUI;
+
+import java.awt.Container;
+import javax.swing.JFrame;
+
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+
+public class ApplicationWindow extends JFrame{
+	
+	public ApplicationWindow(){
+		setTitle("Window");
+	    setSize(300, 200);
+	}
+	
+	@SuppressWarnings("deprecation")
+	public static void main(String[] args) {
+	    JFrame frame = new ApplicationWindow();
+	    frame.show();
+	  }
+}
+public class DialogWindow {
+	
+	//border
+	//titlu
+	
+}
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+
+public interface IWindowImpl {
+	
+	
+}
+public class Main {
+	
+	public static void main (){
+		
+	//Window s = new Window();
+	//Document doc = getDoc();
+	//w.setContent(doc);
+	
+	}
+}
+import javax.swing.JFrame;
+
+public class SwinImpl extends JFrame{
+	
+	public SwinImpl(){
+		
+		setTitle("Window");
+	    setSize(300, 200);
+	
+	}
+	
+	public void frame(){
+		JFrame x = new JFrame();
+	}
+	
+
+}
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+
+public class Window implements IWindowImpl{
+	
+	
+	public void minimize(){
+		
+	}
+	
+	public void maximize(){
+		
+	}
+	
+	public void refresh(){
+		
+	}
+	
+	public Window(){
+	 frame();
+	}
+
+	
+	
+}
+
+public class borderWindow {
+	
+}
+package Observer;
+
+public class Observer {
+
+}
+package Observer;
+
+public class SimpleObserver {
+
+}
+package Observer;
+
+public class Subject {
+	public void attach(Observer obs){}
+	public void detach(Observer obs){}
+	
+}
+import Elements.Element;
+import Observer.Observer;
+
+public class SubjectElement implements Element{
+	
+	public void attach(Observer obs){
+		
+	}
+	
+	public void detach(Observer obs){
+		
+	}
+	
+	public void notify2(){
+		observers.forEach(Observer::update);
+	}
+}
+import Elements.*;
+
+public class DocumentVisitor implements Visitor{
+    private static int imagineCount = 0;
+    private static int paragrafCount = 0;
+    private static int tabelCount = 0;
+    private static int sectiuneCount = 0;
+    private static int txtSpecialCount=0;
+
+    public void printStatistics(){
+    	
+        System.out.println("Exista:");
+        System.out.println(sectiuneCount + " Sectiuni");
+        System.out.println(imagineCount + " Imagini");
+        System.out.println(paragrafCount + " Paragrafe");
+        System.out.println(tabelCount + " Tabele");
+        System.out.println(txtSpecialCount + " Texte Speciale");
+        
+        System.out.println("--------------Titlu/Sectiune--------------------------");
+    }
+
+
+    @Override
+    public void visitImageProxy(ImageProxy imageProxy) {
+        imagineCount++;
+    }
+
+    @Override
+    public void visitImage(Imagine imagine) {
+        imagineCount++;
+    }
+
+    @Override
+    public void visitParagraph(Paragraf paragraf) {
+        paragrafCount++;
+    }
+
+    @Override
+    public void visitTable(Tabel table) {
+        tabelCount++;
+    }
+
+    @Override
+    public void visitSection(Sectiune sectiune) {
+        sectiuneCount++;
+
+        for(Element e : sectiune.getElements()){
+            e.acceptVisitor(this);
+        }
+    }
+    
+    
+	@Override
+	public void visitSpecialArt(SpecialArt text) {
+		txtSpecialCount++;
+	}
+}
+import Elements.*;
+
+    // TODO : SAVES ALL DATA ON A FILE IN JSON FORMAT !!!
+
+public class SaveDocumentDataV implements Visitor {
+	
+    private final String dataFile = "";
+
+    @Override
+    public void visitImageProxy(ImageProxy imageProxy) {
+
+    }
+
+    @Override
+    public void visitImage(Imagine imagine) {
+
+    }
+
+    @Override
+    public void visitParagraph(Paragraf paragraf) {
+
+    }
+
+    @Override
+    public void visitTable(Tabel table) {
+
+    }
+
+    @Override
+    public void visitSection(Sectiune sectiune) {
+
+    }
+
+	@Override
+	public void visitSpecialArt(SpecialArt text) {
+		// TODO Auto-generated method stub
+		
+	}
+}
+import Elements.*;
+
+public interface Visitor {
+
+    public void visitImageProxy(ImageProxy imageProxy);
+    public void visitImage(Imagine imagine);
+    public void visitParagraph(Paragraf paragraf);
+    public void visitTable(Tabel table);
+    public void visitSection(Sectiune sectiune);
+    public void visitSpecialArt(SpecialArt text);
+
+}
